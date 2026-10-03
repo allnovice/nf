@@ -5,8 +5,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficeSettingController;
 use App\Models\OfficeSetting;
+use App\Http\Controllers\AdminAuthController;
 
-Route::prefix('admin')->group(function () {
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])
+    ->name('admin.login');
+
+Route::post('/admin/login', [AdminAuthController::class, 'login'])
+    ->name('admin.login.submit');
+
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])
+    ->name('admin.logout');
+
+Route::middleware('auth')->prefix('admin')->group(function () {
     Route::get('/employees', [EmployeeController::class, 'index'])
         ->name('admin.employees.index');
 
@@ -27,6 +37,17 @@ Route::prefix('admin')->group(function () {
 
     Route::put('/office', [OfficeSettingController::class, 'update'])
         ->name('admin.office.update');
+
+    Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])
+        ->name('admin.employees.destroy');
+});
+
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('admin.employees.index');
+    }
+
+    return redirect()->route('admin.login');
 });
 
 Route::get('/{code}', function (string $code) {

@@ -40,6 +40,19 @@
    class="inline-block mt-3 text-sm font-medium text-blue-600 dark:text-blue-400">
     Edit
 </a>
+<form method="POST"
+      action="{{ route('admin.employees.destroy', $employee) }}"
+      class="inline-block ml-3"
+      onsubmit="return confirm('Delete this employee? This cannot be undone.');">
+
+    @csrf
+    @method('DELETE')
+
+    <button type="submit"
+            class="text-sm font-medium text-red-600 dark:text-red-400">
+        Delete
+    </button>
+</form>
                 </div>
 
             @empty

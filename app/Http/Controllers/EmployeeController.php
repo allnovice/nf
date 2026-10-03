@@ -125,5 +125,16 @@ foreach ($socials as $platform) {
             ->route('admin.employees.index')
             ->with('success', 'Employee added successfully.');
     }
+public function destroy(Employee $employee)
+{
+    if ($employee->photo) {
+        Storage::disk('public')->delete($employee->photo);
+    }
 
+    $employee->delete();
+
+    return redirect()
+        ->route('admin.employees.index')
+        ->with('success', 'Employee deleted successfully.');
+}
 }
