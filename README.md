@@ -1,375 +1,20 @@
-# NFC Business Card
+# NF - Digital Business Card
 
 Laravel-based digital business card system for employees.
 
-Each employee has a public profile accessible through a unique code.
+Each employee gets a unique public code that can be used to access their digital business card.
 
 Example:
-https://your-domain.com/1111
 
-## Stack
+    https://your-domain.com/1111
 
-- Laravel 13
-- PHP 8.4
-- MariaDB 11
-- Nginx
-- Node.js 22
-- Vite
-- Tailwind CSS
-- Docker Compose
-- Tailscale Funnel (optional)
+---
 
-## Requirements
+## Features
 
-Install:
+### Public Employee Cards
 
-- Git
-- Docker
-- Docker Compose
-- Tailscale (optional)
-
-The application runs PHP, MariaDB and Node inside Docker.
-
-## First-Time Setup
-
-Clone the repository:
-
-git clone https://github.com/allnovice/nf.git
-cd nf
-
-Create the environment file:
-
-cp .env.example .env
-
-Edit the environment:
-
-nano .env
-
-Development example:
-
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8080
-
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=nfc
-DB_USERNAME=nfc
-DB_PASSWORD=your-password
-
-For development, set the machine address used by the browser to reach Vite:
-
-VITE_HMR_HOST=192.168.x.x
-
-If accessing the machine through Tailscale:
-
-VITE_HMR_HOST=100.x.x.x
-
-Never commit .env.
-
-## Start the Application
-
-Build and start the containers:
-
-docker compose up -d --build
-
-Install PHP dependencies:
-
-docker compose exec app composer install
-
-Generate the Laravel key:
-
-docker compose exec app php artisan key:generate
-
-Run migrations:
-
-docker compose exec app php artisan migrate
-
-Create the storage link:
-
-docker compose exec app php artisan storage:link
-
-Fix Laravel permissions:
-
-docker compose exec app chown -R www-data:www-data storage bootstrap/cache
-
-Install frontend dependencies:
-
-docker compose run --rm node npm ci
-
-## Development
-
-Start Vite:
-
-docker compose up -d node
-
-The application is available at:
-
-http://localhost:8080
-
-Or from another device:
-
-http://MACHINE-IP:8080
-
-Vite runs on:
-
-http://MACHINE-IP:5173
-
-VITE_HMR_HOST must contain the IP address that the browser can use to reach the development machine.
-
-## Laravel-Only Development
-
-If only PHP, Blade, routes, controllers or database code is being changed, Node does not need to run.
-
-Stop Node:
-
-docker compose stop node
-
-Laravel will use the existing production assets in:
-
-public/build
-
-## Frontend Development
-
-When changing CSS or JavaScript:
-
-docker compose up -d node
-
-Vite provides live reload/HMR.
-
-When finished:
-
-docker compose stop node
-
-Rebuild the production assets:
-
-docker compose run --rm node npm run build
-
-## Production Setup
-
-Clone the repository:
-
-git clone https://github.com/allnovice/nf.git
-cd nf
-
-Create the environment:
-
-cp .env.example .env
-
-Edit:
-
-nano .env
-
-Production example:
-
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-public-domain.com
-ASSET_URL=https://your-public-domain.com
-
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=nfc
-DB_USERNAME=nfc
-DB_PASSWORD=your-production-password
-
-Do not configure VITE_HMR_HOST for production.
-
-Build and start:
-
-docker compose up -d --build
-
-Install production PHP dependencies:
-
-docker compose exec app composer install --no-dev --optimize-autoloader
-
-Generate the application key:
-
-docker compose exec app php artisan key:generate
-
-Run migrations:
-
-docker compose exec app php artisan migrate --force
-
-Create the storage link:
-
-docker compose exec app php artisan storage:link
-
-Fix permissions:
-
-docker compose exec app chown -R www-data:www-data storage bootstrap/cache
-
-Install frontend dependencies:
-
-docker compose run --rm node npm ci
-
-Build frontend assets:
-
-docker compose run --rm node npm run build
-
-Stop Node:
-
-docker compose stop node
-
-Production uses the built assets in public/build.
-
-## Production Updates
-
-Pull the latest code:
-
-git pull
-
-For PHP, Blade or Laravel changes:
-
-docker compose exec app php artisan optimize:clear
-
-For CSS or JavaScript changes:
-
-docker compose run --rm node npm ci
-docker compose run --rm node npm run build
-docker compose exec app php artisan optimize:clear
-
-For database migrations:
-
-docker compose exec app php artisan migrate --force
-docker compose exec app php artisan optimize:clear
-
-If the Dockerfile changed:
-
-docker compose up -d --build
-
-## Tailscale Funnel
-
-Tailscale Funnel can expose the application publicly.
-
-The local application runs on:
-
-http://127.0.0.1:8080
-
-Start Funnel:
-
-sudo tailscale funnel --bg http://127.0.0.1:8080
-
-Funnel exposes the Nginx application publicly.
-
-Do not expose Vite port 5173 through Funnel.
-
-In production, Node/Vite should normally be stopped.
-
-## Environment Files
-
-.env contains machine-specific settings and secrets.
-
-Never commit .env.
-
-.env.example is the template used when creating a new installation.
-
-Development normally uses:
-
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://MACHINE-IP:8080
-VITE_HMR_HOST=MACHINE-IP
-
-Production normally uses:
-
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-public-domain.com
-ASSET_URL=https://your-public-domain.com
-
-VITE_HMR_HOST should not be configured for production.
-
-Never put real passwords, API keys or APP_KEY values in .env.example.
-
-## Git Workflow
-
-Pull the latest code:
-
-git pull
-
-Make and test changes.
-
-Then:
-
-git add .
-git commit -m "Describe the change"
-git push
-
-Production can then pull the changes:
-
-git pull
-
-Run the required production update commands.
-
-Do not commit:
-
-.env
-vendor/
-node_modules/
-public/build/
-public/storage/
-
-## Useful Commands
-
-Check containers:
-
-docker compose ps
-
-Application logs:
-
-docker compose logs app
-
-Nginx logs:
-
-docker compose logs nginx
-
-Vite logs:
-
-docker compose logs node
-
-Enter the Laravel container:
-
-docker compose exec app bash
-
-Laravel Tinker:
-
-docker compose exec app php artisan tinker
-
-Clear Laravel caches:
-
-docker compose exec app php artisan optimize:clear
-
-Test the application:
-
-curl -I http://127.0.0.1:8080/1111
-
-## Project Structure
-
-app/
-database/
-resources/
-public/
-docker/
-routes/
-compose.yaml
-Dockerfile
-vite.config.js
-.env.example
-
-## Public Employee Cards
-
-Employee cards are accessed using the employee code:
-
-/{code}
-
-Example:
-
-/1111
-
-Employee cards can contain:
+Each employee has a public digital business card containing:
 
 - Name
 - Position
@@ -381,15 +26,321 @@ Employee cards can contain:
 - Social media links
 - Office information
 
-Office information is centrally managed and can be shared by all employee cards.
+Example:
 
-## Production Notes
+    /{employee-code}
 
-Before exposing the application publicly, make sure:
+---
 
-APP_ENV=production
-APP_DEBUG=false
+### Admin
 
-Keep .env private.
+Protected admin area for managing employees.
+
+Admin functions include:
+
+- Login/logout
+- Add employee
+- Edit employee
+- Delete employee
+- Upload/replace employee photo
+- Manage employee social links
+- View public employee card
+- Manage office information
+
+---
+
+### Excel Import
+
+Employees can be added in bulk using an Excel file.
+
+The admin can:
+
+- Download an Excel template
+- Fill employee information
+- Upload the Excel file
+- Import multiple employees at once
+- Skip employees whose code already exists
+
+Employee fields:
+
+- Code
+- Name
+- Position
+- Department
+- Email
+- Phone
+- Bio
+
+Social link fields:
+
+- Facebook
+- Instagram
+- LinkedIn
+- X
+- GitHub
+- Viber
+- Telegram
+- Messenger
+- WhatsApp
+- YouTube
+- TikTok
+- Threads
+
+---
+
+## Office Information
+
+Office information is centrally managed and can appear on employee cards.
+
+Current office settings include:
+
+- Office name
+- Address
+- Phone
+- Email
+- Website
+- Logo
+
+---
+
+## Technology
+
+- Laravel 13
+- PHP 8.4
+- MariaDB 11
+- Nginx
+- Tailwind CSS
+- Vite
+- Docker Compose
+- Tailscale Funnel (optional)
+
+---
+
+## Quick Setup
+
+### Requirements
+
+- Git
+- Docker
+- Docker Compose
+
+### Clone the project
+
+    git clone https://github.com/allnovice/nf.git
+    cd nf
+
+### Create the environment file
+
+    cp .env.example .env
+
+Edit the environment file:
+
+    nano .env
+
+Configure the database and application settings as required.
+
+### Start the application
+
+    docker compose up -d --build
+
+### Install PHP dependencies
+
+    docker compose exec app composer install
+
+### Install frontend dependencies
+
+    docker compose run --rm node npm ci
+
+### Initialize Laravel
+
+    docker compose exec app php artisan key:generate
+    docker compose exec app php artisan migrate
+    docker compose exec app php artisan storage:link
+
+### Build frontend assets
+
+    docker compose run --rm node npm run build
+
+The application is now ready.
+
+---
+
+## Development
+
+For PHP, Blade, routes, controllers and database changes, the Node/Vite container does not need to be running.
+
+For CSS or JavaScript development:
+
+    docker compose up -d node
+
+Build frontend assets when needed:
+
+    docker compose run --rm node npm run build
+
+---
+
+## Admin
+
+The admin login page is:
+
+    /admin/login
+
+After login:
+
+    /admin/employees
+
+The root URL `/` behaves as follows:
+
+- Not logged in → `/admin/login`
+- Logged in → `/admin/employees`
+
+---
+
+## Public Employee Cards
+
+Employee cards are publicly accessible without authentication.
+
+Format:
+
+    /{code}
+
+Example:
+
+    /1111
+
+The public card contains the employee's configured information and social links.
+
+The admin area remains protected by authentication.
+
+---
+
+## Production
+
+For production, use:
+
+    APP_ENV=production
+    APP_DEBUG=false
+    APP_URL=https://your-public-domain.com
+    SESSION_SECURE_COOKIE=true
+
+Do not commit `.env`.
+
+Do not expose the Vite development port publicly.
+
+### Production update
+
+After pulling new code:
+
+    git pull
+    docker compose up -d --build
+    docker compose exec app php artisan migrate --force
+    docker compose exec app php artisan optimize:clear
+
+If only PHP, Blade or Laravel configuration changed, a rebuild may not always be necessary.
+
+---
+
+## Tailscale Funnel
+
+Tailscale Funnel can be used to expose the application publicly.
+
+Example:
+
+    sudo tailscale funnel --bg http://127.0.0.1:8080
+
+Do not expose the Vite development port `5173` through Funnel.
+
+---
+
+## Useful Commands
+
+### Check containers
+
+    docker compose ps
+
+### Laravel logs
+
+    docker compose logs app
+
+### Nginx logs
+
+    docker compose logs nginx
+
+### Vite logs
+
+    docker compose logs node
+
+### Enter the Laravel container
+
+    docker compose exec app bash
+
+### Laravel Tinker
+
+    docker compose exec app php artisan tinker
+
+### Clear Laravel caches
+
+    docker compose exec app php artisan optimize:clear
+
+---
+
+## Git Workflow
+
+Pull updates:
+
+    git pull
+
+Check changes:
+
+    git status
+
+Commit changes:
+
+    git add .
+    git commit -m "Describe the change"
+
+Push changes:
+
+    git push
+
+---
+
+## Project Structure
+
+    app/                    Laravel application
+    database/               Database migrations
+    resources/              Blade views and frontend
+    public/                 Public assets
+    routes/                 Application routes
+    docker/                 Docker configuration
+    compose.yaml            Docker Compose configuration
+    Dockerfile              PHP application image
+    vite.config.js          Vite configuration
+    .env.example            Environment template
+
+---
+
+## Security
+
+The public employee cards are intentionally accessible without authentication.
+
+The admin area requires authentication.
+
+Never commit:
+
+    .env
+
+Keep production passwords, database credentials and `APP_KEY` private.
 
 Back up the production database before major migrations or destructive changes.
+
+---
+
+## TODO
+
+- Company/organization logo
+- Import social links from Excel
+- Improve Excel import validation and error reporting
+- Additional security audit
+- Production backup/restore procedure
+- Further UI improvements
