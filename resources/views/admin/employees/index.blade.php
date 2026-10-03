@@ -22,6 +22,27 @@
                class="bg-gray-900 text-white px-4 py-2 rounded-xl">
                 Add Employee
             </a>
+<a href="{{ route('admin.employees.template') }}"
+   class="text-sm font-medium text-green-600 dark:text-green-400">
+    Download Excel Template
+</a>
+<form method="POST"
+      onsubmit="alert('SUBMITTING');"
+      action="{{ route('admin.employees.import') }}"
+      enctype="multipart/form-data"
+      class="mt-4">
+    @csrf
+
+    <input type="file"
+           name="file"
+           accept=".xlsx,.xls"
+           required>
+
+    <button type="submit"
+            class="ml-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+        Import Excel
+    </button>
+</form>
         </div>
 
         <div class="bg-white dark:bg-gray-900 rounded-2xl shadow overflow-hidden">
@@ -34,7 +55,14 @@
                     </div>
 
                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                        {{ $employee->position }} · {{ $employee->code }}
+                        {{ $employee->position }}
+
+<a href="{{ url('/' . $employee->code) }}"
+   target="_blank"
+   class="font-medium text-blue-600 dark:text-blue-400 hover:underline">
+    {{ $employee->code }}
+</a>
+
                     </div>
 <a href="{{ route('admin.employees.edit', $employee) }}"
    class="inline-block mt-3 text-sm font-medium text-blue-600 dark:text-blue-400">

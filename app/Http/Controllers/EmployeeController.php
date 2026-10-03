@@ -6,6 +6,8 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\SocialLink;
+use App\Imports\EmployeesImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -136,5 +138,50 @@ public function destroy(Employee $employee)
     return redirect()
         ->route('admin.employees.index')
         ->with('success', 'Employee deleted successfully.');
+}
+public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls',
+    ]);
+
+    $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(
+        $request->file('file')->getRealPath()
+    );
+
+    $rows = $reader
+        ->load($request->file('file')->getRealPath())
+        ->getActiveSheet()
+        ->toArray();
+
+    foreach (array_slice($rows, 1) as $row) {
+
+        if (empty($row[0]) || empty($row[1])) {
+            continue;
+        }
+
+        if (Employee::where('code', $row[0])->exists()) {
+            continue;
+        }
+
+        Employee::create([
+            'code'       => $row[0],
+            'name'       => $row[1],
+            'position'   => $row[2] ?? null,
+            'department' => $row[3] ?? null,
+            'email'      => $row[4] ?? null,
+            'phone'      => $row[5] ?? null,
+            'bio'        => $row[6] ?? null,
+        ]);
+    }
+
+    return back()->with('success', 'Employees imported successfully.');
+}
+public function downloadTemplate()
+{
+    return Excel::download(
+        new \App\Exports\EmployeesTemplateExport,
+        'employees-template.xlsx'
+    );
 }
 }
