@@ -1,6 +1,7 @@
 services:
 
   app:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,6 +10,7 @@ services:
       - ./:/var/www/html
 
   nginx:
+    restart: unless-stopped
     image: nginx:alpine
     ports:
       - "8080:80"
@@ -28,6 +30,7 @@ services:
     command: npm run dev -- --host 0.0.0.0
 
   db:
+    restart: unless-stopped
     image: mariadb:11
     environment:
       MARIADB_DATABASE: nfc
