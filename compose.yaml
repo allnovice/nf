@@ -27,6 +27,8 @@ services:
       - ./:/var/www/html
     ports:
       - "5173:5173"
+    environment:
+      VITE_HMR_HOST: ${VITE_HMR_HOST}
     command: npm run dev -- --host 0.0.0.0
 
   db:
