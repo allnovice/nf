@@ -9,6 +9,18 @@ services:
     volumes:
       - ./:/var/www/html
 
+  scheduler:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    command: php artisan schedule:work
+    depends_on:
+      - app
+
   nginx:
     restart: unless-stopped
     image: nginx:alpine
